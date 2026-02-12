@@ -1,0 +1,32 @@
+# Knowledge Corpus Manager Configuration
+# Update corpus.root_path to point to your OneDrive knowledge corpus.
+# Environment variable overrides: KCM_CORPUS_ROOT, KCM_DATABASE_PATH, KCM_PORT
+
+corpus:
+  root_path: ""  # Set this to your corpus root, e.g. "C:/Users/you/OneDrive/KnowledgeCorpus"
+
+database:
+  path: "~/.kcm/corpus.db"
+
+consolidation:
+  output_dir: "~/.kcm/exports/"
+
+server:
+  host: "127.0.0.1"
+  port: 5000
+  debug: true
+
+indexer:
+  skip_patterns:
+    - "~$*"
+    - "*.tmp"
+    - "Thumbs.db"
+    - ".DS_Store"
+  supported_extensions:
+    - ".md"
+    - ".docx"
+    - ".xlsx"
+    - ".pdf"
+    - ".vsdx"
+    - ".txt"
+    - ".csv"

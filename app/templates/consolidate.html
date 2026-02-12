@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Consolidate - KCM{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Consolidate Files</h2>
+
+<form action="{{ url_for('consolidate.consolidate') }}" method="post">
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <label for="name" class="form-label">Export Name</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="e.g. Q4 Review Materials" required>
+        </div>
+        <div class="col-md-3">
+            <label for="format" class="form-label">Output Format</label>
+            <select class="form-select" id="format" name="format">
+                <option value="markdown">Markdown (.md)</option>
+                <option value="json">JSON (.json)</option>
+                <option value="text">Text Manifest (.txt)</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-success w-100">Generate Export</button>
+        </div>
+    </div>
+
+    {% if selected_files %}
+    <div class="card">
+        <div class="card-header">Selected Files ({{ selected_files | length }})</div>
+        <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Section</th>
+                        <th>Type</th>
+                        <th>Path</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in selected_files %}
+                    <tr>
+                        <td>{{ file.file_name }}</td>
+                        <td>{{ file.corpus_section or '' }}</td>
+                        <td><code>{{ file.file_extension }}</code></td>
+                        <td class="text-truncate" style="max-width: 400px;">{{ file.file_path }}</td>
+                        <input type="hidden" name="file_ids" value="{{ file.id }}">
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No files selected. <a href="{{ url_for('search.search_page') }}">Search for files</a> and select them for consolidation.
+    </div>
+    {% endif %}
+</form>
+{% endblock %}

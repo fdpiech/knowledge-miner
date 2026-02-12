@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Export History - KCM{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Export History</h2>
+
+{% if jobs %}
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Format</th>
+            <th>Files</th>
+            <th>Created</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for job in jobs %}
+        <tr>
+            <td>{{ job.name }}</td>
+            <td><code>{{ job.output_format }}</code></td>
+            <td>{{ job.file_count or 0 }}</td>
+            <td>{{ job.created_at.strftime('%Y-%m-%d %H:%M') if job.created_at else '' }}</td>
+            <td>
+                {% if job.output_path %}
+                <a href="{{ url_for('consolidate.download', job_id=job.id) }}" class="btn btn-sm btn-outline-primary">Download</a>
+                {% else %}
+                <span class="text-muted">No file</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">
+    No exports yet. <a href="{{ url_for('search.search_page') }}">Search for files</a> and consolidate them.
+</div>
+{% endif %}
+{% endblock %}
