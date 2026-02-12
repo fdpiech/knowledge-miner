@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}{{ file.file_name }} - KCM{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('browse.browse_root') }}">Root</a></li>
+        {% for crumb in breadcrumbs %}
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('browse.browse_dir', dir_path=crumb.path) }}">{{ crumb.name }}</a>
+        </li>
+        {% endfor %}
+        <li class="breadcrumb-item active">{{ file.file_name }}</li>
+    </ol>
+</nav>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">{{ file.file_name }}</h4>
+        <code>{{ file.file_extension }}</code>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th style="width: 200px;">Full Path</th>
+                    <td><code>{{ file.file_path }}</code></td>
+                </tr>
+                <tr>
+                    <th>Parent Directory</th>
+                    <td>
+                        {% if file.parent_dir %}
+                            <a href="{{ url_for('browse.browse_dir', dir_path=file.parent_dir) }}">{{ file.parent_dir }}</a>
+                        {% else %}
+                            (root)
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Corpus Section</th>
+                    <td>{{ file.corpus_section or '(none)' }}</td>
+                </tr>
+                <tr>
+                    <th>File Size</th>
+                    <td>{{ "%.2f KB" | format(file.file_size_bytes / 1024) if file.file_size_bytes >= 1024 else "%d bytes" | format(file.file_size_bytes) }} ({{ "{:,}".format(file.file_size_bytes) }} bytes)</td>
+                </tr>
+                <tr>
+                    <th>Created</th>
+                    <td>{{ file.created_at.strftime('%Y-%m-%d %H:%M:%S') if file.created_at else 'Unknown' }}</td>
+                </tr>
+                <tr>
+                    <th>Modified</th>
+                    <td>{{ file.modified_at.strftime('%Y-%m-%d %H:%M:%S') if file.modified_at else 'Unknown' }}</td>
+                </tr>
+                <tr>
+                    <th>Indexed At</th>
+                    <td>{{ file.indexed_at.strftime('%Y-%m-%d %H:%M:%S') if file.indexed_at else '' }}</td>
+                </tr>
+                <tr>
+                    <th>SHA-256 Hash</th>
+                    <td><code class="small">{{ file.file_hash or 'N/A' }}</code></td>
+                </tr>
+                <tr>
+                    <th>Tags</th>
+                    <td>
+                        {% if file.tags %}
+                            {% for tag in file.tags %}
+                                <span class="badge bg-info">{{ tag.name }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="text-muted">No tags</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        {% if corpus_root %}
+        <a href="#" class="btn btn-outline-primary" onclick="alert('Open this path in your file manager:\n{{ corpus_root }}/{{ file.file_path }}'); return false;">
+            Show File Path
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

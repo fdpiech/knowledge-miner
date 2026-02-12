@@ -1,0 +1,50 @@
+{% if entries.directories %}
+<div class="list-group mb-3">
+    {% for dir in entries.directories %}
+    <div class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center dir-row" role="button"
+             hx-get="{{ url_for('browse.browse_partial', dir_path=dir.path) }}"
+             hx-target="#subdir-{{ dir.path | replace('/', '-') | replace(' ', '_') }}"
+             hx-swap="innerHTML"
+             hx-trigger="click once">
+            <span class="dir-toggle">
+                <span class="toggle-icon me-1">&#9654;</span>
+                <strong>{{ dir.name }}/</strong>
+            </span>
+            <span class="badge bg-secondary">{{ dir.file_count }} files</span>
+        </div>
+        <div class="d-flex justify-content-end mt-1">
+            <a href="{{ url_for('browse.browse_dir', dir_path=dir.path) }}" class="btn btn-sm btn-outline-primary">Open</a>
+        </div>
+        <div id="subdir-{{ dir.path | replace('/', '-') | replace(' ', '_') }}" class="ms-4 mt-2 subdir-contents" style="display: none;"></div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if entries.files %}
+<table class="table table-sm table-hover">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Size</th>
+            <th>Modified</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for file in entries.files %}
+        <tr>
+            <td><a href="{{ url_for('browse.file_detail', file_id=file.id) }}">{{ file.file_name }}</a></td>
+            <td><code>{{ file.file_extension }}</code></td>
+            <td>{{ "%.1f KB" | format(file.file_size_bytes / 1024) if file.file_size_bytes >= 1024 else "%d B" | format(file.file_size_bytes) }}</td>
+            <td>{{ file.modified_at.strftime('%Y-%m-%d %H:%M') if file.modified_at else '' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if not entries.directories and not entries.files %}
+<p class="text-muted">This directory is empty.</p>
+{% endif %}

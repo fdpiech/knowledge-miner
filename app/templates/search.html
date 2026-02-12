@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Search - KCM{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Search</h2>
+
+<form hx-get="{{ url_for('search.search_results') }}" hx-target="#search-results" hx-trigger="submit" hx-push-url="false">
+    <div class="row g-3 mb-3">
+        <div class="col-md-4">
+            <label for="filename" class="form-label">Filename</label>
+            <input type="text" class="form-control" id="filename" name="filename"
+                   value="{{ params.filename if params else '' }}" placeholder="Search by filename...">
+        </div>
+        <div class="col-md-4">
+            <label for="path_contains" class="form-label">Path Contains</label>
+            <input type="text" class="form-control" id="path_contains" name="path_contains"
+                   value="{{ params.path_contains if params else '' }}" placeholder="Filter by path...">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">File Type</label>
+            <select class="form-select" name="extension" multiple size="3">
+                {% for ext in extensions %}
+                <option value="{{ ext }}" {% if params and ext in params.extensions %}selected{% endif %}>{{ ext }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <label class="form-label">Section</label>
+            <select class="form-select" name="section" multiple size="3">
+                {% for section in sections %}
+                <option value="{{ section }}" {% if params and section in params.sections %}selected{% endif %}>{{ section }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="date_from" class="form-label">Modified From</label>
+            <input type="date" class="form-control" id="date_from" name="date_from"
+                   value="{{ params.date_from.strftime('%Y-%m-%d') if params and params.date_from else '' }}">
+        </div>
+        <div class="col-md-2">
+            <label for="date_to" class="form-label">Modified To</label>
+            <input type="date" class="form-control" id="date_to" name="date_to"
+                   value="{{ params.date_to.strftime('%Y-%m-%d') if params and params.date_to else '' }}">
+        </div>
+        <div class="col-md-2">
+            <label for="min_size" class="form-label">Min Size (bytes)</label>
+            <input type="number" class="form-control" id="min_size" name="min_size"
+                   value="{{ params.min_size if params and params.min_size is not none else '' }}">
+        </div>
+        <div class="col-md-2">
+            <label for="max_size" class="form-label">Max Size (bytes)</label>
+            <input type="number" class="form-control" id="max_size" name="max_size"
+                   value="{{ params.max_size if params and params.max_size is not none else '' }}">
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+    </div>
+
+    <input type="hidden" name="sort_by" id="sort_by" value="{{ params.sort_by if params else 'file_name' }}">
+    <input type="hidden" name="sort_dir" id="sort_dir" value="{{ params.sort_dir if params else 'asc' }}">
+    <input type="hidden" name="page" id="page_input" value="{{ params.page if params else 1 }}">
+</form>
+
+<div id="search-results">
+    {% if results %}
+        {% include "_search_results.html" %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function setSort(column) {
+    const sortBy = document.getElementById('sort_by');
+    const sortDir = document.getElementById('sort_dir');
+    if (sortBy.value === column) {
+        sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortBy.value = column;
+        sortDir.value = 'asc';
+    }
+    document.getElementById('page_input').value = '1';
+    htmx.trigger(sortBy.closest('form'), 'submit');
+}
+
+function setPage(page) {
+    document.getElementById('page_input').value = page;
+    htmx.trigger(document.getElementById('page_input').closest('form'), 'submit');
+}
+</script>
+{% endblock %}

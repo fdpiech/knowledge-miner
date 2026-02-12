@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Admin - KCM{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Index Management</h2>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Index Status</div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tbody>
+                        <tr>
+                            <th>Corpus Root</th>
+                            <td><code>{{ corpus_root or 'Not configured' }}</code></td>
+                        </tr>
+                        <tr>
+                            <th>Total Indexed Files</th>
+                            <td>{{ total_files }}</td>
+                        </tr>
+                        <tr>
+                            <th>Last Index Run</th>
+                            <td>{{ last_indexed.strftime('%Y-%m-%d %H:%M:%S') if last_indexed else 'Never' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">Actions</div>
+            <div class="card-body d-grid gap-2">
+                <form action="{{ url_for('admin.reindex') }}" method="post">
+                    <button type="submit" class="btn btn-primary w-100">Full Reindex</button>
+                    <small class="text-muted">Walks the entire corpus, adds new files, updates changed files, removes deleted files.</small>
+                </form>
+                <hr>
+                <form action="{{ url_for('admin.reindex_incremental') }}" method="post">
+                    <button type="submit" class="btn btn-outline-primary w-100">Incremental Reindex</button>
+                    <small class="text-muted">Only processes new or changed files. Faster but does not detect deletions.</small>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not corpus_root %}
+<div class="alert alert-warning mt-4">
+    <strong>Corpus root not configured.</strong>
+    Set the <code>KCM_CORPUS_ROOT</code> environment variable or update <code>corpus.root_path</code> in <code>config.yaml</code>.
+</div>
+{% endif %}
+{% endblock %}

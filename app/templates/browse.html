@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Browse - KCM{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Browse Corpus</h2>
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('browse.browse_root') }}">Root</a></li>
+        {% for crumb in breadcrumbs %}
+        <li class="breadcrumb-item {% if loop.last %}active{% endif %}">
+            {% if loop.last %}
+                {{ crumb.name }}
+            {% else %}
+                <a href="{{ url_for('browse.browse_dir', dir_path=crumb.path) }}">{{ crumb.name }}</a>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+</nav>
+
+{% include "_browse_entries.html" %}
+{% endblock %}

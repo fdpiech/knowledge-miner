@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - KCM{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Dashboard</h2>
+
+{% if not corpus_root %}
+<div class="alert alert-warning">
+    <strong>Corpus root not configured.</strong>
+    Set <code>KCM_CORPUS_ROOT</code> environment variable or edit <code>config.yaml</code> to point to your knowledge corpus directory.
+</div>
+{% endif %}
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Total Files</h5>
+                <p class="display-6">{{ total_files }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Corpus Size</h5>
+                <p class="display-6">{{ (total_size / 1048576) | round(1) }} MB</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Last Indexed</h5>
+                <p class="fs-5">{{ last_indexed.strftime('%Y-%m-%d %H:%M') if last_indexed else 'Never' }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Exports</h5>
+                <p class="display-6">{{ total_jobs }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="d-grid gap-2">
+            <form action="{{ url_for('admin.reindex') }}" method="post" class="d-grid">
+                <button type="submit" class="btn btn-primary">Reindex Now</button>
+            </form>
+            <a href="{{ url_for('browse.browse_root') }}" class="btn btn-outline-secondary">Browse Corpus</a>
+            <a href="{{ url_for('search.search_page') }}" class="btn btn-outline-secondary">Search</a>
+            <a href="{{ url_for('consolidate.history') }}" class="btn btn-outline-secondary">View Exports</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Files by Type</div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        {% for ext, count in ext_counts %}
+                        <tr>
+                            <td><code>{{ ext }}</code></td>
+                            <td class="text-end">{{ count }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not ext_counts %}
+                        <tr><td class="text-muted" colspan="2">No files indexed yet</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">Files by Section</div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        {% for section, count in section_counts %}
+                        <tr>
+                            <td>{{ section or '(root)' }}</td>
+                            <td class="text-end">{{ count }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not section_counts %}
+                        <tr><td class="text-muted" colspan="2">No files indexed yet</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">Recently Modified Files</div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Section</th>
+                            <th>Type</th>
+                            <th>Modified</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in recent_files %}
+                        <tr>
+                            <td><a href="{{ url_for('browse.file_detail', file_id=file.id) }}">{{ file.file_name }}</a></td>
+                            <td>{{ file.corpus_section or '' }}</td>
+                            <td><code>{{ file.file_extension }}</code></td>
+                            <td>{{ file.modified_at.strftime('%Y-%m-%d %H:%M') if file.modified_at else '' }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if not recent_files %}
+                        <tr><td class="text-muted" colspan="4">No files indexed yet. Click "Reindex Now" to get started.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

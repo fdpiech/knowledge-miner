@@ -1,0 +1,61 @@
+/* Knowledge Corpus Manager - Custom Styles */
+
+body {
+    font-size: 0.9rem;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* Dashboard stat cards */
+.card .display-6 {
+    font-weight: 600;
+}
+
+/* Browse tree */
+.dir-row {
+    cursor: pointer;
+}
+
+.dir-row:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.toggle-icon {
+    display: inline-block;
+    transition: transform 0.15s ease;
+    font-size: 0.7rem;
+}
+
+.dir-row.expanded .toggle-icon {
+    transform: rotate(90deg);
+}
+
+/* Search results */
+.table .text-truncate {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+th[role="button"] {
+    cursor: pointer;
+    user-select: none;
+}
+
+th[role="button"]:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Flash messages */
+.alert {
+    margin-bottom: 1rem;
+}
+
+/* Pagination */
+.pagination {
+    margin-bottom: 0;
+}

@@ -1,0 +1,91 @@
+{% if results %}
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <span class="text-muted">{{ results.total }} results (page {{ results.page }} of {{ results.pages }})</span>
+    <div>
+        <button class="btn btn-sm btn-outline-secondary" onclick="toggleSelectAll(true)">Select All</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="toggleSelectAll(false)">Deselect All</button>
+    </div>
+</div>
+
+<form action="{{ url_for('consolidate.consolidate') }}" method="get" id="consolidate-form">
+    <table class="table table-sm table-hover">
+        <thead>
+            <tr>
+                <th style="width: 30px;"><input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this.checked)"></th>
+                <th role="button" onclick="setSort('file_name')">
+                    Name
+                    {% if params.sort_by == 'file_name' %}{{ '&#9650;' if params.sort_dir == 'asc' else '&#9660;' }}{% endif %}
+                </th>
+                <th role="button" onclick="setSort('corpus_section')">
+                    Section
+                    {% if params.sort_by == 'corpus_section' %}{{ '&#9650;' if params.sort_dir == 'asc' else '&#9660;' }}{% endif %}
+                </th>
+                <th role="button" onclick="setSort('file_extension')">
+                    Type
+                    {% if params.sort_by == 'file_extension' %}{{ '&#9650;' if params.sort_dir == 'asc' else '&#9660;' }}{% endif %}
+                </th>
+                <th role="button" onclick="setSort('file_path')">
+                    Path
+                    {% if params.sort_by == 'file_path' %}{{ '&#9650;' if params.sort_dir == 'asc' else '&#9660;' }}{% endif %}
+                </th>
+                <th role="button" onclick="setSort('modified_at')">
+                    Modified
+                    {% if params.sort_by == 'modified_at' %}{{ '&#9650;' if params.sort_dir == 'asc' else '&#9660;' }}{% endif %}
+                </th>
+                <th role="button" onclick="setSort('file_size_bytes')">
+                    Size
+                    {% if params.sort_by == 'file_size_bytes' %}{{ '&#9650;' if params.sort_dir == 'asc' else '&#9660;' }}{% endif %}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in results.files %}
+            <tr>
+                <td><input type="checkbox" name="file_ids" value="{{ file.id }}" class="file-checkbox"></td>
+                <td><a href="{{ url_for('browse.file_detail', file_id=file.id) }}">{{ file.file_name }}</a></td>
+                <td>{{ file.corpus_section or '' }}</td>
+                <td><code>{{ file.file_extension }}</code></td>
+                <td class="text-truncate" style="max-width: 300px;" title="{{ file.file_path }}">{{ file.file_path }}</td>
+                <td>{{ file.modified_at.strftime('%Y-%m-%d') if file.modified_at else '' }}</td>
+                <td>{{ "%.1f KB" | format(file.file_size_bytes / 1024) if file.file_size_bytes >= 1024 else "%d B" | format(file.file_size_bytes) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-between align-items-center">
+        <button type="submit" class="btn btn-success btn-sm">Consolidate Selected</button>
+
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                {% if results.page > 1 %}
+                <li class="page-item"><a class="page-link" href="#" onclick="setPage({{ results.page - 1 }}); return false;">Prev</a></li>
+                {% endif %}
+                {% for p in range(1, results.pages + 1) %}
+                    {% if p == results.page %}
+                    <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                    {% elif p <= 3 or p > results.pages - 3 or (p >= results.page - 2 and p <= results.page + 2) %}
+                    <li class="page-item"><a class="page-link" href="#" onclick="setPage({{ p }}); return false;">{{ p }}</a></li>
+                    {% elif p == 4 or p == results.pages - 3 %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+                {% if results.page < results.pages %}
+                <li class="page-item"><a class="page-link" href="#" onclick="setPage({{ results.page + 1 }}); return false;">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</form>
+
+{% elif results is defined %}
+<div class="alert alert-info">No matching files found.</div>
+{% endif %}
+
+<script>
+function toggleSelectAll(checked) {
+    document.querySelectorAll('.file-checkbox').forEach(cb => cb.checked = checked);
+    const selectAllCheckbox = document.getElementById('select-all-checkbox');
+    if (selectAllCheckbox) selectAllCheckbox.checked = checked;
+}
+</script>
