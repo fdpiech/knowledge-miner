@@ -139,7 +139,7 @@ def search(name: str, ext: str, section: str, after: str, before: str, limit: in
             click.echo("No matching files found.")
             return
 
-        click.echo(f"Found {results['total']} files (showing {len(results['items'])}):\n")
+        click.echo(f"Found {results['total']} files (showing {len(results['files'])}):\n")
         for f in results["files"]:
             modified = f.modified_at.strftime("%Y-%m-%d") if f.modified_at else "unknown"
             click.echo(f"  [{f.file_extension}] {f.file_path}  ({modified})")
